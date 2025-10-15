@@ -28,9 +28,12 @@ def on_subscribe(client, userdata, mid, granted_qos, properties=None):
 
 
 def on_message(client, userdata, msg):
-    data=msg.payload.decode("utf-8")
-    json_data = json.loads(data)
-    print(json_data)
+    data = msg.payload.decode("utf-8")
+    try:
+        json_data = json.loads(data)
+        print(json_data)
+    except json.JSONDecodeError:
+        print("Text message:", data)
     
 
 
@@ -45,14 +48,9 @@ client.connect(broker, port=port)
 #-------------Start Loop-----------------------
 client.loop_start()
 time.sleep(3)
-if connected_flag:
-    print("in main loop")
-    while True:
-        pass
-else:
-    print("waiting for connection...")
+while connected_flag != True:  # Wait for connection
+    print("In wait loop")
     time.sleep(1)
-
 #-------------End Loop-------------------------
 client.loop_stop()
 client.disconnect()
