@@ -4,9 +4,9 @@ import time
 import json
 
 #--------------Client Configs-----------------
-usr = "khlf"
-password = "0000"
-broker = "the host"
+usr = "Akhlf"
+password = "Akhlf111"
+broker = "e6c2df10e9694e6a83615df93f018c3e.s1.eu.hivemq.cloud"
 port = 8883
 connected_flag = False  # will become True when connected
 client = paho.Client(client_id="", userdata=None, protocol=paho.MQTTv5)
