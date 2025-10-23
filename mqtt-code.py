@@ -11,13 +11,14 @@ port = 1883
 connected_flag = False  # will become True when connected
 client = paho.Client(client_id="", userdata=None, protocol=paho.MQTTv311)
 client.username_pw_set(usr, password=password)
+Battery_status = False
 
 #-------------Callback Functions--------------
 def on_connect(client, userdata, flags, rc, properties=None):
     global connected_flag
     if rc ==0:
         connected_flag=True
-        print("CONNACK received with code %s." % rc)
+        print("Connection Done with code %s." % rc)
         client.subscribe("sensors/battery", qos=1)
     else:
         print("field to connect")
@@ -31,9 +32,19 @@ def on_message(client, userdata, msg):
     data = msg.payload.decode("utf-8")
     try:
         json_data = json.loads(data)
+        if "batt" in json_data:
+            print("Battery data is Recieved")
+            Battery_status = True
+        else:
+            print("No Battery data found")
+            Battery_status = False
         json_data["timestamp"] = time.ctime()
         json_data["topic"] = msg.topic
+        json_data["B_status"] = Battery_status
         print("JSON message:", json_data)
+        with open("Battery.log", "a") as logfile:
+            logfile.write(str(json_data))
+            logfile.write("\n")
     except json.JSONDecodeError:
         print("Text message:", data)
     
