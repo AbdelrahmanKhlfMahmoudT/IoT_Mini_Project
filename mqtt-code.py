@@ -6,10 +6,10 @@ import json
 #--------------Client Configs-----------------
 usr = "Akhlf"
 password = "Akhlf111"
-broker = "e6c2df10e9694e6a83615df93f018c3e.s1.eu.hivemq.cloud"
-port = 8883
+broker = "192.168.1.2"      
+port = 1883
 connected_flag = False  # will become True when connected
-client = paho.Client(client_id="", userdata=None, protocol=paho.MQTTv5)
+client = paho.Client(client_id="", userdata=None, protocol=paho.MQTTv311)
 client.username_pw_set(usr, password=password)
 
 #-------------Callback Functions--------------
@@ -18,7 +18,7 @@ def on_connect(client, userdata, flags, rc, properties=None):
     if rc ==0:
         connected_flag=True
         print("CONNACK received with code %s." % rc)
-        client.subscribe("sensors/#")
+        client.subscribe("sensors/battery", qos=1)
     else:
         print("field to connect")
 
@@ -31,7 +31,9 @@ def on_message(client, userdata, msg):
     data = msg.payload.decode("utf-8")
     try:
         json_data = json.loads(data)
-        print(json_data)
+        json_data["timestamp"] = time.ctime()
+        json_data["topic"] = msg.topic
+        print("JSON message:", json_data)
     except json.JSONDecodeError:
         print("Text message:", data)
     
@@ -41,8 +43,7 @@ def on_message(client, userdata, msg):
 client.on_connect = on_connect
 client.on_subscribe = on_subscribe
 client.on_message = on_message
-client.tls_set(tls_version=mqtt.client.ssl.PROTOCOL_TLS)
-client.tls_insecure_set(True)
+#-------------Connect to Broker----------------
 client.connect(broker, port=port)
 
 #-------------Start Loop-----------------------
